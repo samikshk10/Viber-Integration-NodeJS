@@ -60,6 +60,17 @@ bot.on(BotEvents.CONVERSATION_STARTED, (userProfile, isSubscribed) => {
     // console.log("this is userProfile", userProfile);
 });
 
+bot.getOnlineStatus(["1KdbS8HfL+11ytZ4JYfeiw=="]).then(onlineStatus => console.log("online status of users are", onlineStatus));
+
+bot.onSubscribe((response) => {
+    say(
+        response,
+        `Hi there ${response.userProfile.name}. I am ${bot.name}! This application was created by Alejo Kim Uy.`
+    );
+});
+
+
+
 
 // bot.onTextMessage(/./, (message, response) => {
 //     sendResponseBack(response, message.text);
@@ -83,26 +94,20 @@ bot.getBotProfile().then(response => console.log(`Bot Named: ${response.name}`))
 
 // Server setup
 const startserver = async () => {
+    const port = process.env.NGROK_PORT || 5000;
     if (process.env.EXPOSE_URL) {
-        const port = process.env.NGROK_PORT || 5000;
 
         app.listen(port, () => {
-            bot.setWebhook(`${process.env.EXPOSE_URL}/viber/webhook`);
-            console.log(`Server is running on ${process.env.EXPOSE_URL}`);
+            bot.setWebhook(`${process.env.EXPOSE_URL}/viber/webhook`).then(() => console.log(`ngrok server is running on ${process.env.EXPOSE_URL}`)).catch(err => console.log(err));
+        });
+    } else {
+
+        const ngrok = require('./ngrokmodule.js');
+        SERVER_URL = await ngrok.GetNgrokUrl();
+        app.listen(port, () => {
+            bot.setWebhook(`${SERVER_URL}/viber/webhook`).then(() => console.log(`ngrok server is running on ${SERVER_URL}`)).catch(err => console.log(err));
         });
     }
-    // else {
-    //     try {
-    //         await ngrok.connect(process.env.NGROK_PORT).then(url => {
-
-    //             console.log(url);
-    //             bot.setWebhook(`${url}/viber/webhook`);
-    //             console.log(`Ngrok URL is ${url}`);
-    //         }).catch((err) => console.log(err, "err"));
-    //     } catch (err) {
-    //         await ngrok.disconnect();
-    //     }
-    // }
 }
 
 startserver();
