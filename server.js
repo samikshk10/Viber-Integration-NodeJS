@@ -3,7 +3,6 @@ const express = require('express');
 const ViberBot = require('viber-bot').Bot;
 const BotEvents = require('viber-bot').Events;
 const TextMessage = require('viber-bot').Message.Text;
-const ngrok = require('ngrok');
 const bodyParser = require('body-parser');
 const botRouter = require('./routes/bot.routes');
 const app = express();
@@ -40,12 +39,18 @@ function sendResponseBack(botResponse, text_received) {
 }
 
 
-bot.onSubscribe(response => console.log(`Subscribed: ${response.userProfile.name}`));
+bot.onSubscribe((response) => {
+    console.log("subscribe");
+    say(
+        response,
+        `Hi there ${response.userProfile.name}. I am ${bot.name}`
+    );
+});
 
 
-// bot.on(BotEvents.SUBSCRIBED, (response) => {
-//     console.log("subscribed" + response);
-// })
+bot.on(BotEvents.SUBSCRIBED, (response) => {
+    console.log("subscribed" + response);
+})
 
 bot.on(BotEvents.UNSUBSCRIBED, (userId) => {
     console.log(`Unsubscribed: ${userId}`);
@@ -60,16 +65,7 @@ bot.on(BotEvents.CONVERSATION_STARTED, (userProfile, isSubscribed) => {
     // console.log("this is userProfile", userProfile);
 });
 
-bot.getOnlineStatus(["1KdbS8HfL+11ytZ4JYfeiw=="]).then(onlineStatus => console.log("online status of users are", onlineStatus));
-
-bot.onSubscribe((response) => {
-    say(
-        response,
-        `Hi there ${response.userProfile.name}. I am ${bot.name}! This application was created by Alejo Kim Uy.`
-    );
-});
-
-
+bot.getOnlineStatus(["1KdbS8HfL+11ytZ4JYfeiw=="]).then(onlineStatus => console.log("online status of users are", onlineStatus)); // status => online, offline, undisclosed
 
 
 // bot.onTextMessage(/./, (message, response) => {
